@@ -1,0 +1,35 @@
+.footer {
+  border-top: 1px solid #2a2a4a;
+  padding: 16px 0;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: center;
+}
+
+.footer-text {
+  font-size: 0.9rem;
+  color: #a8a8c0;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 12px 0;
+  }
+
+  .footer-text {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 10px 0;
+  }
+
+  .footer-text {
+    font-size: 0.8rem;
+  }
+}
+

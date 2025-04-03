@@ -1,0 +1,132 @@
+.query-list {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1200px) {
+  .query-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .query-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .query-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.query-list-loading,
+.query-list-empty {
+  text-align: center;
+  padding: 24px;
+  color: #a8a8c0;
+  grid-column: 1 / -1;
+}
+
+.query-card {
+  background-color: #1a1a3a;
+  border: 1px solid #2a2a4a;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.query-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.query-card-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.query-user-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.query-timestamp {
+  font-size: 0.8rem;
+  color: #a8a8c0;
+}
+
+.query-card-content {
+  padding: 0 16px 16px;
+  flex-grow: 1;
+}
+
+.query-text {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.query-answer {
+  padding-top: 16px;
+  border-top: 1px solid #2a2a4a;
+  position: relative;
+}
+
+.query-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.query-content {
+  line-height: 1.5;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.query-content.collapsed {
+  max-height: 80px;
+  overflow: hidden;
+  position: relative;
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  color: #6c47ff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 4px;
+  display: block;
+}
+
+.expand-btn:hover {
+  text-decoration: underline;
+}
+
+.query-card-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #2a2a4a;
+  font-size: 0.8rem;
+  color: #a8a8c0;
+}
+
+@media (max-width: 768px) {
+  .query-card-header,
+  .query-card-content {
+    padding: 12px;
+  }
+
+  .query-card-footer {
+    padding: 10px 12px;
+  }
+}
+

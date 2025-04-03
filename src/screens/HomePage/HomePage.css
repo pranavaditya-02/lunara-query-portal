@@ -1,0 +1,27 @@
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 0;
+}
+
+.card-content {
+  padding: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px 0;
+  }
+}
+

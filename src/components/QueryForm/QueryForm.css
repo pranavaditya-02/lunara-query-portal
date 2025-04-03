@@ -1,0 +1,9 @@
+.query-form {
+  width: 100%;
+}
+
+.form-input-error,
+.form-textarea-error {
+  border-color: #ff6b6b !important;
+}
+

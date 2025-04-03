@@ -1,0 +1,63 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-header {
+  border-bottom: 1px solid #2a2a4a;
+  padding: 16px 0;
+}
+
+.login-header .logo h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+.login-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background-color: #13132b;
+  border: 1px solid #2a2a4a;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.login-form {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .login-content {
+    padding: 32px 0;
+  }
+
+  .login-card {
+    max-width: 90%;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-content {
+    padding: 24px 0;
+  }
+
+  .login-card {
+    padding: 16px;
+  }
+
+  .login-header .logo h1 {
+    font-size: 1.3rem;
+  }
+}
+
