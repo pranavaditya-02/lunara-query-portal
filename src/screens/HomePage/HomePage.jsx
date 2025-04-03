@@ -22,7 +22,8 @@ function HomePage() {
         setLoading(true)
         setError(null)
         const data = await fetchQueries()
-        setQueries(data)
+        const resolvedQueries = data.filter(query => query.status === "resolved") // Filtering resolved queries
+        setQueries(resolvedQueries)
       } catch (error) {
         console.error("Failed to fetch queries:", error)
         setError("Failed to load queries. Please refresh the page.")
@@ -34,7 +35,6 @@ function HomePage() {
 
     getQueries()
   }, [])
-
   const handleQuerySubmitted = async () => {
     setShowModal(false)
     try {

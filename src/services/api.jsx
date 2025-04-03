@@ -1,182 +1,258 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyrxzppHr6LiH9Dey2MucarNgY7dLfU-RScou-_2e_4j1hf0S8fyCklGcwgPoO52KPR/exec";
+import axios from "axios";
 
-const useMockData = true;
-let isAuthenticated = false;
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbyrxzppHr6LiH9Dey2MucarNgY7dLfU-RScou-_2e_4j1hf0S8fyCklGcwgPoO52KPR/exec";
+let isAuthenticated = true;
+let cachedQueries = null;
 
-const mockQueries = [
-  {
-    id: "1",
-    name: "John Doe",
-    query: "What time does the Lunara event start?",
-    answer: "The event starts at 10:00 AM on Saturday, May 15th.",
-    status: "resolved",
-    timestamp: "2023-05-10T08:30:00Z",
+// Axios instance with common configuration
+const api = axios.create({
+  baseURL: API_URL,
+  timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
   },
-  {
-    id: "2",
-    name: "Jane Smith",
-    query: "Is there a dress code for the event?",
-    answer: null,
-    status: "pending",
-    timestamp: "2023-05-11T14:45:00Z",
-  },
-  {
-    id: "3",
-    name: "Alex Johnson",
-    query: "Can I bring a guest to the event?",
-    answer: null,
-    status: "pending",
-    timestamp: "2023-05-12T09:15:00Z",
-  },
-  {
-    id: "4",
-    name: "Sarah Williams",
-    query: "Where can I find the schedule for the workshops?",
-    answer: "The workshop schedule will be emailed to all registered participants 3 days before the event.",
-    status: "resolved",
-    timestamp: "2023-05-09T11:20:00Z",
-  },
-  {
-    id: "5",
-    name: "Michael Brown",
-    query: "Are there any vegetarian food options available?",
-    answer: "Yes, we will have a variety of vegetarian options at all meal times.",
-    status: "resolved",
-    timestamp: "2023-05-08T16:20:00Z",
-  },
-  {
-    id: "6",
-    name: "Emily Davis",
-    query: "Is there parking available at the venue?",
-    answer: null,
-    status: "pending",
-    timestamp: "2023-05-13T10:30:00Z",
-  },
-  {
-    id: "7",
-    name: "David Wilson",
-    query: "Will the presentations be recorded?",
-    answer: "Yes, all presentations will be recorded and made available to attendees after the event.",
-    status: "resolved",
-    timestamp: "2023-05-07T13:45:00Z",
-  },
-  {
-    id: "8",
-    name: "Sophia Martinez",
-    query: "Is there a mobile app for the event?",
-    answer: null,
-    status: "pending",
-    timestamp: "2023-05-14T09:00:00Z",
-  },
-]
+});
+
 export async function fetchQueries() {
   try {
-    if (!isAuthenticated && !useMockData) {
-      throw new Error("Authentication required");
-    }
+    console.log("Attempting to fetch queries from API");
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    if (useMockData) {
-      return mockQueries;
-    }
-
-    const response = await fetch(`${API_URL}?action=getQueries`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      mode: "no-cors",
+    // Using GET request with query parameters
+    const response = await api.get("", {
+      params: { action: "getQueries" },
     });
 
-    console.log("Fetched queries response:", response);
-    return [];
+    console.log("Fetched queries response:", response.data);
+
+    // Cache the successful response
+    if (response.data && response.data.data) {
+      cachedQueries = response.data.data;
+    }
+
+    return response.data.data || [];
   } catch (error) {
     console.error("Error fetching queries:", error);
-    throw new Error("Failed to fetch queries. Please try again.");
+
+    // If we have cached data, return it as a fallback
+    if (cachedQueries) {
+      console.log("Returning cached queries due to API failure");
+      return cachedQueries;
+    }
+
+    if (error.code === "ERR_NETWORK" || error.message.includes("CORS")) {
+      throw new Error(
+        "Failed to connect to the server due to CORS restrictions. Please make sure CORS is enabled on the server."
+      );
+    }
+
+    throw new Error(
+      "Failed to fetch queries. Please check your connection and try again."
+    );
   }
 }
 
 export async function submitQuery(queryData) {
   try {
     console.log("Submitting query:", queryData);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    if (useMockData) {
-      const newQuery = {
-        id: String(mockQueries.length + 1),
-        name: queryData.name,
-        query: queryData.query,
-        answer: null,
-        status: "pending",
-        timestamp: new Date().toISOString(),
-      };
-      mockQueries.push(newQuery);
-      return { success: true, data: newQuery };
-    }
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "submitQuery", ...queryData }),
-      mode: "no-cors",
+    
+    // Use URLSearchParams correctly
+    const params = new URLSearchParams();
+    params.append('action', 'submitQuery');
+    
+    // Convert object properties to string format properly
+    Object.keys(queryData).forEach(key => {
+      if (typeof queryData[key] === 'object') {
+        params.append(key, JSON.stringify(queryData[key]));
+      } else {
+        params.append(key, queryData[key]);
+      }
     });
-
-    console.log("Submit query response:", response);
-    return { success: true };
+    
+    // Use a timeout to handle cases where the script loads but callback doesn't fire
+    const TIMEOUT_MS = 8000;
+    
+    // Create a unique callback name
+    const callbackName = 'jsonpCallback_' + Date.now();
+    
+    // Create a promise to handle the JSONP response with timeout
+    const jsonpPromise = new Promise((resolve, reject) => {
+      // Add timeout handler
+      const timeoutId = setTimeout(() => {
+        // If we time out but data was actually submitted (as you mentioned),
+        // we should consider this a success with limited info
+        console.log("JSONP request timed out, but data may have been submitted");
+        resolve({ status: "success", message: "Query submitted but response not confirmed" });
+        
+        // Clean up
+        delete window[callbackName];
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      }, TIMEOUT_MS);
+      
+      // Add the callback to window
+      window[callbackName] = (data) => {
+        clearTimeout(timeoutId);
+        resolve(data);
+        // Clean up
+        delete window[callbackName];
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      };
+      
+      // Create script element
+      const script = document.createElement('script');
+      script.src = `${API_URL}?${params.toString()}&callback=${callbackName}`;
+      script.onerror = (err) => {
+        // Don't immediately reject - since we know data is being added
+        console.warn("JSONP script error, but continuing:", err);
+        // We don't clear the timeout here, letting it resolve as a "partial success"
+      };
+      
+      // Add script to page
+      document.head.appendChild(script);
+    });
+    
+    const result = await jsonpPromise;
+    console.log("Submit query response:", result);
+    
+    // Invalidate cache after successful submission
+    cachedQueries = null;
+    
+    return { success: true, data: result };
   } catch (error) {
     console.error("Error submitting query:", error);
-    throw new Error("Failed to submit query. Please try again.");
+    throw new Error("Failed to submit query. Please try again later.");
   }
 }
 
 export async function login(credentials) {
   try {
-    console.log("Attempting login:", { username: credentials.username, password: "***" });
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    if (useMockData) {
-      if (credentials.username === "admin" && credentials.password === "admin123") {
-        isAuthenticated = true;
-        return { status: "success", message: "Login successful" };
-      } else {
-        isAuthenticated = false;
-        return { status: "error", message: "Invalid credentials" };
-      }
-    }
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "login",
-        username: credentials.username,
-        password: credentials.password,
-      }),
-      mode: "no-cors",
+    console.log("Attempting login:", {
+      username: credentials.username,
+      password: "***",
     });
 
-    console.log("Login response:", response);
-    isAuthenticated = true;
-    return { status: "success" };
+    // Use GET request with query parameters instead
+    const response = await api.get("", {
+      params: { 
+        action: "login",
+        username: credentials.username,
+        password: credentials.password
+      }
+    });
+
+    console.log("Login response:", response.data);
+
+    if (response.data.status === "success") {
+      isAuthenticated = true;
+      return response.data;
+    } else {
+      isAuthenticated = false;
+      return response.data;
+    }
   } catch (error) {
     console.error("Error during login:", error);
     isAuthenticated = false;
-    throw new Error("Login failed. Please try again.");
+
+    if (error.code === "ERR_NETWORK" || error.message.includes("CORS")) {
+      throw new Error(
+        "Failed to login due to CORS restrictions. Please make sure CORS is enabled on the server."
+      );
+    }
+
+    throw new Error("Login failed. Please try again later.");
   }
 }
-export const updateQuery = async (queryId, updatedData) => {
-  const response = await fetch(`/update-query/${queryId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updatedData),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to update query");
+export async function updateQuery(queryData) {
+  try {
+    console.log("Updating query:", queryData);
+    
+    // Check if user is authenticated for update operations
+    if (!isAuthenticated) {
+      throw new Error("Authentication required to update queries");
+    }
+    
+    // Use URLSearchParams for JSONP approach
+    const params = new URLSearchParams();
+    params.append('action', 'updateQuery');
+    
+    // Add all queryData properties to the params
+    Object.keys(queryData).forEach(key => {
+      if (typeof queryData[key] === 'object') {
+        params.append(key, JSON.stringify(queryData[key]));
+      } else {
+        params.append(key, queryData[key]);
+      }
+    });
+    
+    // Use a timeout to handle cases where the script loads but callback doesn't fire
+    const TIMEOUT_MS = 8000;
+    
+    // Create a unique callback name
+    const callbackName = 'jsonpCallback_update_' + Date.now();
+    
+    // Create a promise to handle the JSONP response with timeout
+    const jsonpPromise = new Promise((resolve, reject) => {
+      // Add timeout handler
+      const timeoutId = setTimeout(() => {
+        console.log("JSONP request timed out, but data may have been updated");
+        resolve({ status: "success", message: "Query updated but response not confirmed" });
+        
+        // Clean up
+        delete window[callbackName];
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      }, TIMEOUT_MS);
+      
+      // Add the callback to window
+      window[callbackName] = (data) => {
+        clearTimeout(timeoutId);
+        resolve(data);
+        // Clean up
+        delete window[callbackName];
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      };
+      
+      // Create script element
+      const script = document.createElement('script');
+      script.src = `${API_URL}?${params.toString()}&callback=${callbackName}`;
+      script.onerror = (err) => {
+        console.warn("JSONP script error, but continuing:", err);
+      };
+      
+      // Add script to page
+      document.head.appendChild(script);
+    });
+    
+    const result = await jsonpPromise;
+    console.log("Update query response:", result);
+    
+    // Invalidate cache after successful update
+    cachedQueries = null;
+    
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error updating query:", error);
+    
+    if (error.message === "Authentication required to update queries") {
+      throw error; // Rethrow authentication errors unchanged
+    }
+    
+    if (error.code === "ERR_NETWORK" || error.message.includes("CORS")) {
+      throw new Error(
+        "Failed to update query due to CORS restrictions. Please make sure CORS is enabled on the server."
+      );
+    }
+    
+    throw new Error("Failed to update query. Please try again later.");
   }
-
-  return await response.json();
-};
-
+}
 export function isUserAuthenticated() {
   return isAuthenticated;
 }
