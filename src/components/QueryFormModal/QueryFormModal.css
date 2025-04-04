@@ -11,6 +11,20 @@
   z-index: 1000;
   padding: 16px;
 }
+.form-note {
+  margin: 16px 0;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 6px;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
 .modal-content {
   background-color: #13132b;

@@ -111,6 +111,10 @@ function QueryFormModal({ onClose, onSuccess }) {
               ></textarea>
               {errors.query && <p className="form-error">{errors.query}</p>}
             </div>
+            
+            <div className="form-note glass-effect">
+              <p>Note: Your query has been submitted and will appear on the coordinators' dashboard for review. A response will be provided shortly. Please check back in 10–20 minutes for an update.</p>
+            </div>
 
             <div className="form-actions">
               <button type="button" className="btn btn-outline" onClick={onClose} disabled={isSubmitting}>
@@ -138,4 +142,3 @@ function QueryFormModal({ onClose, onSuccess }) {
 }
 
 export default QueryFormModal
-
