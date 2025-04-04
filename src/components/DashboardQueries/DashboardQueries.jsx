@@ -76,32 +76,51 @@ function DashboardQueries({ queries, loading, onQueryUpdated }) {
     }
   }
 
-  const handleDelete = async (query) => {
-    const queryId = query.id
+const handleDelete = async (query) => {
+  const queryId = query.id;
 
+  setDeleting((prev) => ({
+    ...prev,
+    [queryId]: true,
+  }));
+
+  try {
+    const result = await deleteQuery(queryId);
+    
+    if (result && result.status === "success") {
+      if (onQueryUpdated) {
+        onQueryUpdated();
+      }
+      toast.success("Query deleted successfully");
+    } else {
+      // Handle the case where deletion might have happened but we're not sure
+      toast.warning("Delete operation completed, but please refresh to verify changes");
+      if (onQueryUpdated) {
+        onQueryUpdated();
+      }
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error(`Failed to delete query: ${error.message || "Unknown error"}`);
+  } finally {
     setDeleting((prev) => ({
       ...prev,
-      [queryId]: true,
-    }))
-
-    try {
-      // Now using the actual deleteQuery API function
-      await deleteQuery(queryId)
-      
-      if (onQueryUpdated) {
-        onQueryUpdated()
-      }
-      
-      toast.success("Query deleted successfully")
-    } catch (error) {
-      toast.error("Failed to delete query. Please try again.")
-    } finally {
-      setDeleting((prev) => ({
-        ...prev,
-        [queryId]: false,
-      }))
-    }
+      [queryId]: false,
+    }));
   }
+}
+
+  // Function to render query text with truncation
+  const renderQueryText = (query) => {
+    const isExpanded = expandedQueries[query.id] || false;
+    const maxLength = 100;
+    
+    if (query.query.length <= maxLength || isExpanded) {
+      return query.query;
+    } else {
+      return `${query.query.substring(0, maxLength)}...`;
+    }
+  };
 
   if (loading) {
     return (
@@ -177,7 +196,9 @@ function DashboardQueries({ queries, loading, onQueryUpdated }) {
                   <div className="query-response-content">
                     <div className="query-text">
                       <p className="query-label">Query:</p>
-                      <p className={`query-content ${!expandedQueries[query.id] && "collapsed"}`}>{query.query}</p>
+                      <p className="query-content">
+                        {renderQueryText(query)}
+                      </p>
                       {query.query.length > 100 && (
                         <button className="expand-btn" onClick={() => toggleExpand(query.id)}>
                           {expandedQueries[query.id] ? "Show less" : "Show more"}

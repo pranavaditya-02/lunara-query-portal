@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyrxzppHr6LiH9Dey2MucarNgY7dLfU-RScou-_2e_4j1hf0S8fyCklGcwgPoO52KPR/exec";
+  "https://script.google.com/macros/s/AKfycbzzB4EYON-wWWFcjPCfnZ5fQjvHCIR-epq90kuPD06yBqL0mFMIIEuIuff-Kc3YrlJk/exec";
 let isAuthenticated = true;
 let cachedQueries = null;
 
@@ -262,38 +262,17 @@ export async function updateQuery(queryData) {
   }
 }
 // Alternative approach using URLSearchParams and fetch
-export async function deleteQuery(queryId) {
+export const deleteQuery = async (id) => {
   try {
-    console.log("Deleting query:", queryId);
-
-    if (!isAuthenticated) {
-      throw new Error("Authentication required to delete queries");
-    }
-
-    // Try a POST request instead of GET
-    const formData = new FormData();
-    formData.append('action', 'deleteQuery');
-    formData.append('id', queryId);
-
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      body: formData
+    // eslint-disable-next-line no-undef
+    const response = await jsonp(`${API_URL}?action=deleteQuery&id=${id}`, {
+      param: "callback",
     });
-    
-    const data = await response.json();
-    console.log("Delete query response:", data);
-    
-    if (data.status !== "success") {
-      throw new Error(data.message || "Failed to delete query");
-    }
-    
-    cachedQueries = null;
-    return data;
+    return response;
   } catch (error) {
-    console.error("Error deleting query:", error);
-    throw error;
+    throw new Error("Failed to delete query: " + error.message);
   }
-}
+};
 
 export function isUserAuthenticated() {
   return isAuthenticated;

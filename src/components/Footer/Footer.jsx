@@ -4,7 +4,7 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="container footer-container">
-        <p className="footer-text">&copy; {new Date().getFullYear()} Lunara Event. All rights reserved.</p>
+        <p className="footer-text"> &copy; Lunara {new Date().getFullYear()} . All rights reserved.</p>
       </div>
     </footer>
   )
