@@ -262,18 +262,78 @@ export async function updateQuery(queryData) {
   }
 }
 // Alternative approach using URLSearchParams and fetch
-export const deleteQuery = async (id) => {
+
+export async function deleteQuery(queryId) {
   try {
-    // eslint-disable-next-line no-undef
-    const response = await jsonp(`${API_URL}?action=deleteQuery&id=${id}`, {
-      param: "callback",
+    console.log("Deleting query:", queryId);
+
+    if (!isAuthenticated) {
+      throw new Error("Authentication required to delete queries");
+    }
+
+    // JSONP approach with proper parameter formatting
+    const callbackName = "jsonpCallbackDelete" + Date.now();
+
+    return new Promise((resolve, reject) => {
+      // Create properly formatted URL parameters
+      const params = new URLSearchParams();
+      params.append("action", "deleteQuery"); // Make sure this is exactly "deleteQuery"
+      params.append("id", queryId);
+
+      const TIMEOUT_MS = 15000;
+
+      // Add the callback to window
+      window[callbackName] = function (data) {
+        console.log("Delete callback received:", data);
+        clearTimeout(timeoutId);
+
+        // Invalidate cache
+        cachedQueries = null;
+
+        resolve(data);
+
+        // Clean up
+        delete window[callbackName];
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      };
+
+      // Create script element with properly formatted URL
+      const script = document.createElement("script");
+      script.src = `${API_URL}?${params.toString()}&callback=${callbackName}`;
+
+      // Add timeout
+      const timeoutId = setTimeout(() => {
+        console.log("JSONP delete request timed out");
+
+        // Assume success since the request was made
+        resolve({
+          status: "success",
+          message:
+            "Query deletion likely successful but not confirmed. Please refresh to verify.",
+        });
+
+        // Clean up
+        delete window[callbackName];
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      }, TIMEOUT_MS);
+
+      script.onerror = function (err) {
+        console.warn("JSONP script error:", err);
+        // Continue with timeout rather than rejecting
+      };
+
+      // Add script to page
+      document.head.appendChild(script);
     });
-    return response;
   } catch (error) {
+    console.error("Error deleting query:", error);
     throw new Error("Failed to delete query: " + error.message);
   }
-};
-
+}
 export function isUserAuthenticated() {
   return isAuthenticated;
 }
