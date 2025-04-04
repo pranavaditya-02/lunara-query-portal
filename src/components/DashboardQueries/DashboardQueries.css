@@ -1,8 +1,38 @@
-.dashboard-queries-loading,
-.dashboard-queries-empty {
+.dashboard-queries-loading, .dashboard-queries-empty {
   text-align: center;
   padding: 24px;
   color: #a8a8c0;
+}
+
+/* Filter chips styles */
+.filter-chips {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  background-color: #1a1a3a;
+  border: 1px solid #2a2a4a;
+  border-radius: 20px;
+  padding: 6px 16px;
+  color: #a8a8c0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-chip:hover {
+  border-color: #6c47ff;
+  color: #ffffff;
+}
+
+.filter-chip.active {
+  background-color: #6c47ff;
+  border-color: #6c47ff;
+  color: white;
 }
 
 .query-grid {
@@ -26,6 +56,15 @@
 @media (max-width: 576px) {
   .query-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .filter-chips {
+    gap: 8px;
+  }
+  
+  .filter-chip {
+    padding: 4px 12px;
+    font-size: 0.8rem;
   }
 }
 
@@ -87,107 +126,255 @@
   margin-top: 16px;
 }
 
-.response-actions {
+/* Badge styles for status */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.badge-resolved {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge-pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* Status row with label and select in one row */
+.status-row {
   display: flex;
-  align-items: flex-end;
-  gap: 16px;
+  align-items: center;
+  gap: 12px;
   margin-top: 16px;
 }
 
-.status-select {
-  width: 150px;
+.status-row .form-label {
+  margin: 0;
+  white-space: nowrap;
 }
 
-/* Custom Select Styling */
-.custom-select-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.custom-select-button {
-  width: 100%;
+.form-select {
+  flex: 1;
   padding: 10px;
   border-radius: 4px;
   border: 1px solid #2a2a4a;
   background-color: #1a1a3a;
   color: white;
   font-size: 1rem;
-  cursor: pointer;
-  text-align: left;
+}
+
+/* Buttons row with delete and submit in one row */
+.buttons-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
 }
 
-.custom-select-button:hover {
-  background-color: #232348;
-}
-
-.dropdown-icon {
-  transition: transform 0.3s ease;
-}
-
-.dropdown-icon.open {
-  transform: rotate(180deg);
-}
-
-.custom-select-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: #1a1a3a;
-  border: 1px solid #2a2a4a;
+/* Using a more specific class for query card buttons */
+.query-btn {
+  padding: 10px 16px;
   border-radius: 4px;
-  margin-top: 4px;
-  z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.custom-select-option {
-  padding: 10px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 
-.custom-select-option:hover {
-  background-color: #232348;
+.query-btn-primary {
+  background-color: #6c47ff;
+  color: white;
+}
+
+.query-btn-primary:hover {
+  background-color: #5a3cd9;
+}
+
+.query-btn-danger {
+  background-color: #e53935;
+  color: white;
+}
+
+.query-btn-danger:hover {
+  background-color: #c62828;
+}
+
+.query-btn:disabled {
+  background-color: #444458;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Reduce the size of loading text when submitting */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+.query-btn .spinner + span,
+.query-btn span.spinner + span {
+  font-size: 0.85rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {
+  /* Reduce overall card padding */
+  .query-response-card {
+    margin-bottom: 12px;
+  }
+  
   .query-response-header,
   .query-response-content {
-    padding: 12px;
-  }
-
-  .query-text {
     padding: 10px;
   }
-
-  .response-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+  
+  .query-text {
+    padding: 8px;
+    margin-bottom: 12px;
   }
-
-  .status-select {
-    width: 100%;
+  
+  /* Reduce status badge size */
+  .badge {
+    padding: 3px 6px;
+    font-size: 0.75rem;
+  }
+  
+  /* Keep status row as row, not converting to column */
+  .status-row {
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  
+  /* Keep buttons in a row for mobile */
+  .buttons-row {
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  
+  /* Reduce button size for mobile */
+  .query-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    min-height: 36px;
+  }
+  
+  /* Reduce dropdown text size in mobile view */
+  .form-select {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+  
+  /* Reduce form spacing */
+  .form-group {
+    margin-bottom: 10px;
+  }
+  
+  /* Reduce form textarea padding */
+  .form-textarea {
+    padding: 8px;
   }
 }
 
 @media (max-width: 480px) {
+  /* Further reduce container size */
+  .query-response-card {
+    margin-bottom: 10px;
+  }
+  
   .query-response-header,
   .query-response-content {
-    padding: 10px;
+    padding: 8px;
   }
-
+  
   .query-text {
-    padding: 8px;
+    padding: 6px;
+    margin-bottom: 10px;
   }
-
-  .custom-select-button,
-  .custom-select-option {
-    padding: 8px;
-    font-size: 0.9rem;
+  
+  /* Further reduce status badge size */
+  .badge {
+    padding: 2px 5px;
+    font-size: 0.7rem;
+  }
+  
+  /* Reduce user info text size */
+  .query-user-name {
+    font-size: 0.95rem;
+    margin-bottom: 3px;
+  }
+  
+  .query-timestamp {
+    font-size: 0.75rem;
+  }
+  
+  .query-label {
+    font-size: 0.8rem;
+    margin-bottom: 3px;
+  }
+  
+  .form-label {
+    font-size: 0.8rem;
+  }
+  
+  /* Further reduce button size for smaller screens */
+  .query-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+  
+  /* Further reduce dropdown text for smaller screens */
+  .form-select {
+    font-size: 0.75rem;
+    padding: 6px;
+  }
+  
+  /* Further reduce form spacing */
+  .form-group {
+    margin-bottom: 8px;
+  }
+  
+  /* Further reduce form textarea padding */
+  .form-textarea {
+    padding: 6px;
+    font-size: 0.8rem;
+  }
+  
+  /* Further reduce loading text/spinner for smaller screens */
+  .spinner {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+  }
+  
+  /* Reduce spacing between elements */
+  .status-row {
+    margin-top: 10px;
+  }
+  
+  .buttons-row {
+    margin-top: 10px;
   }
 }
-
