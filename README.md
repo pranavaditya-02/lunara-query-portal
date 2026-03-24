@@ -1,12 +1,77 @@
-# React + Vite
+# Lunara Query Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend: React + Vite
+Backend: Node.js + Express + MySQL (localhost)
 
-Currently, two official plugins are available:
+## 1. Install dependencies
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Install frontend dependencies from the project root:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Install backend dependencies:
+
+```bash
+npm --prefix backend install
+```
+
+## 2. Configure environment
+
+Frontend `.env`:
+
+```env
+VITE_BACKEND_URL=http://localhost:5000/api
+```
+
+Backend `.env` (copy from `backend/.env.example`):
+
+```env
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your-mysql-password
+DB_NAME=lunara_portal
+
+JWT_SECRET=change-this-to-a-very-strong-secret
+JWT_EXPIRES_IN=8h
+
+ADMIN_USERNAME=coordinator
+ADMIN_PASSWORD=coordinator123
+```
+
+## 3. MySQL setup
+
+Make sure MySQL is running and the configured user has database create/read/write permissions.
+
+Option A:
+- Let backend auto-create tables and seed admin user on startup.
+
+Option B:
+- Run SQL manually from `backend/sql/schema.sql`.
+
+## 4. Run the app
+
+Start backend:
+
+```bash
+npm --prefix backend run dev
+```
+
+Start frontend in another terminal:
+
+```bash
+npm run dev
+```
+
+## Backend endpoints
+
+- `POST /api/auth/login`
+- `GET /api/queries` (public sees resolved only, authenticated sees all)
+- `POST /api/queries`
+- `PUT /api/queries/:id` (auth required)
+- `DELETE /api/queries/:id` (auth required)

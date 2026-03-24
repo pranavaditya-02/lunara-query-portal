@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import HomePage from "./screens/HomePage/HomePage"
 import LoginPage from "./screens/LoginPage/LoginPage"
 import DashboardPage from "./screens/DashboardPage/DashboardPage"
+import { checkAuthSession, logout as logoutApi } from "./services/api"
 import "./App.css"
 
 function App() {
@@ -14,13 +15,10 @@ function App() {
   const [authChecked, setAuthChecked] = useState(false) // Add this state
   
   useEffect(() => {
-    // Check if user is authenticated on initial load
-    const checkAuth = () => {
-      const authStatus = localStorage.getItem("isAuthenticated")
-      if (authStatus === "true") {
-        setIsAuthenticated(true)
-      }
-      setAuthChecked(true) // Mark authentication check as complete
+    const checkAuth = async () => {
+      const authenticated = await checkAuthSession()
+      setIsAuthenticated(authenticated)
+      setAuthChecked(true)
     }
     
     checkAuth()
@@ -42,12 +40,11 @@ function App() {
   
   const handleLogin = (status) => {
     setIsAuthenticated(status)
-    localStorage.setItem("isAuthenticated", status)
   }
   
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logoutApi()
     setIsAuthenticated(false)
-    localStorage.removeItem("isAuthenticated")
   }
   
   return (
